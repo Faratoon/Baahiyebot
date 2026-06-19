@@ -56,6 +56,7 @@ def main_inline_menu() -> InlineKeyboardMarkup:
             InlineKeyboardButton("🔄 Clear Mem", callback_data="set_clear_mem"),
         ],
         [
+            InlineKeyboardButton("🌐 WebApp", url="https://webapp-zeta-flame-84.vercel.app"),
             InlineKeyboardButton("🌐 Website", url="https://hibomusic.com"),
         ],
     ]
