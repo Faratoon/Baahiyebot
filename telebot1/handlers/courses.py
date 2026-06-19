@@ -9,7 +9,7 @@ from telegram.constants import ParseMode
 from utils.menus import courses_main_menu, course_list_menu, back_button
 
 # Load courses
-COURSES_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "courses.json")
+COURSES_FILE = os.path.join(os.path.dirname(__file__), "..", "..", "data", "courses.json")
 COURSES = []
 
 def load_courses():
