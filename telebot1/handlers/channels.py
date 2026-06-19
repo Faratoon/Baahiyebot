@@ -5,7 +5,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, ConversationHandler
 from telegram.constants import ParseMode
 from utils import firebase
-from utils.menus import channel_menu, group_menu, back_button
+from utils.menus import channel_actions as channel_menu, group_actions as group_menu, back_button
 from utils.helpers import check_media_size
 
 # ── States ────────────────────────────────────────────────────────────────────
