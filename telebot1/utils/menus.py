@@ -14,8 +14,11 @@ def main_menu_keyboard() -> ReplyKeyboardMarkup:
             KeyboardButton("🤖 AI Chat"),
         ],
         [
+            KeyboardButton("📚 Books"),
             KeyboardButton("👤 Profile"),
             KeyboardButton("📞 Support"),
+        ],
+        [
             KeyboardButton("📌 Menu"),
         ],
     ]
@@ -36,9 +39,9 @@ def main_inline_menu() -> InlineKeyboardMarkup:
             InlineKeyboardButton("📚 Courses",  callback_data="menu_courses"),
         ],
         [
+            InlineKeyboardButton("📚 Books",    callback_data="menu_books"),
             InlineKeyboardButton("👤 Profile",  callback_data="menu_profile"),
             InlineKeyboardButton("⚙️ Settings", callback_data="menu_settings"),
-            InlineKeyboardButton("📞 Support",  callback_data="menu_support"),
         ],
         [
             InlineKeyboardButton("☘️ Learn AI",  callback_data="menu_learn"),

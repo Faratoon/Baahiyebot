@@ -75,6 +75,10 @@ from handlers.group_tools import (
     WAITING_RULES, WAITING_TASK_NAME, WAITING_TASK_DESC,
     WAITING_AUTO_TRIGGER, WAITING_AUTO_REPLY,
 )
+from handlers.books import (
+    books_menu, books_list, book_view,
+    books_search_start, books_search_results,
+)
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -101,10 +105,17 @@ async def reply_keyboard_handler(update: Update, context):
         await course_search_results(update, context)
         return
 
+    # Check if we're awaiting book search
+    if context.user_data.get("awaiting_book_search"):
+        context.user_data["awaiting_book_search"] = False
+        await books_search_results(update, context)
+        return
+
     handlers = {
         "📢 Channels/Groups": channels_menu_handler,
         "🤖 AI Chat":         ai_menu,
         "📚 Courses":         courses_menu_handler,
+        "📚 Books":           books_menu,
         "👤 Profile":         profile_command,
         "📞 Support":         support_handler,
         "📌 Menu":            menu_command,
@@ -310,6 +321,8 @@ def main():
         ("attendance", attendance_report),
         ("task_list",  task_list),
         ("task_done",  task_done),
+        # Books
+        ("books",      books_menu),
     ]
     for cmd, fn in cmds:
         app.add_handler(CommandHandler(cmd, fn))
@@ -360,10 +373,25 @@ def main():
         # Admin
         ("^adm_stats$",        admin_stats),
 
+        # Group Tools
+        ("^grp_tool$",         group_tools_menu_handler),
+        ("^grp_rules$",        set_rules_start),
+        ("^grp_attendance$",   attendance_start),
+        ("^grp_tasks$",        task_new_start),
+        ("^grp_task_list$",    task_list),
+        ("^att_(yes|no|later)$", attendance_callback),
+
+        # Books
+        ("^menu_books$",       books_menu),
+        ("^books_free$",       books_list),
+        ("^books_premium$",    books_list),
+        ("^book_view_\\d+$",   book_view),
+        ("^books_search$",     books_search_start),
+
         # Coming soon
         ("^(ch_stats|grp_pin|grp_mute|grp_kick|grp_announce|adm_users|adm_unban)$", coming_soon_cb),
 
-        # Cancel
+        # Cancel (order matters — keep last)
         ("^action_cancel$",    action_cancel),
     ]
     for pattern, fn in cbs:

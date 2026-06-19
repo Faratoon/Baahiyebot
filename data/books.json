@@ -1,0 +1,127 @@
+{
+  "books": [
+    {
+      "id": 1,
+      "title": "AI Automation — Bilow ilaa Dhammaystir",
+      "author": "Mfaratoon",
+      "type": "free",
+      "emoji": "📘",
+      "description": "Buug dhammaystiran oo ku saabsan AI Automation — n8n, Make.com, Zapier, Chatbots, iyo waxyaabo kale.",
+      "file_url": "https://mfaratoon.substack.com/p/ai-automation-book",
+      "cover_url": "",
+      "pages": 120,
+      "language": "Somali"
+    },
+    {
+      "id": 2,
+      "title": "Chatbot Engineering 101",
+      "author": "Mfaratoon",
+      "type": "free",
+      "emoji": "📗",
+      "description": "Baro sida loo dhiso chatbots-ka iyadoo la adeegsanayo Python, Botpress, ManyChat, iyo ChatGPT API.",
+      "file_url": "https://mfaratoon.substack.com/p/chatbot-engineering",
+      "cover_url": "",
+      "pages": 85,
+      "language": "Somali"
+    },
+    {
+      "id": 3,
+      "title": "Prompt Engineering Guide",
+      "author": "Mfaratoon",
+      "type": "free",
+      "emoji": "📕",
+      "description": "Sida loo qoro prompts heer sare ah — ChatGPT, Claude, Gemini, DeepSeek.",
+      "file_url": "https://mfaratoon.substack.com/p/prompt-engineering",
+      "cover_url": "",
+      "pages": 60,
+      "language": "Somali"
+    },
+    {
+      "id": 4,
+      "title": "Telegram Bot Development",
+      "author": "Mfaratoon",
+      "type": "free",
+      "emoji": "📙",
+      "description": "Baro sida loo sameeyo Telegram bots-ka — python-telegram-bot, webhooks, deployment.",
+      "file_url": "https://mfaratoon.substack.com/p/telegram-bot-dev",
+      "cover_url": "",
+      "pages": 95,
+      "language": "Somali"
+    },
+    {
+      "id": 5,
+      "title": "n8n Workflow Automation",
+      "author": "Mfaratoon",
+      "type": "free",
+      "emoji": "📘",
+      "description": "Sida loo isticmaalo n8n si loo automate-gareeyo shaqooyinka — API, webhooks, triggers.",
+      "file_url": "https://mfaratoon.substack.com/p/n8n-automation",
+      "cover_url": "",
+      "pages": 75,
+      "language": "Somali"
+    },
+    {
+      "id": 6,
+      "title": "AI Video Editing Guide",
+      "author": "Mfaratoon",
+      "type": "free",
+      "emoji": "🎬",
+      "description": "Baro AI Video Editing-ka — InVideo, Pictory, Lumen5, CapCut AI.",
+      "file_url": "https://open.substack.com/pub/mfaratoon/p/9-cashar-ai-video-editing",
+      "cover_url": "",
+      "pages": 45,
+      "language": "Somali"
+    },
+    {
+      "id": 7,
+      "title": "Dropshipping + AI Automation",
+      "author": "Mfaratoon",
+      "type": "free",
+      "emoji": "📦",
+      "description": "Sida loo isticmaalo AI-ga Dropshipping-ga — Zendrop, automation, Telegram bots.",
+      "file_url": "https://mfaratoon.substack.com/p/dropshipping-ai",
+      "cover_url": "",
+      "pages": 55,
+      "language": "Somali"
+    },
+    {
+      "id": 8,
+      "title": "AI Mastery Course (Full Bundle)",
+      "author": "Mfaratoon",
+      "type": "premium",
+      "emoji": "👑",
+      "description": "Dhammaan koorsooyinka AI-ga — 10 courses, 500+ pages, videos, certificates.",
+      "file_url": "https://mfaratoon.substack.com/premium",
+      "cover_url": "",
+      "pages": 500,
+      "language": "Somali/English",
+      "price": "$49"
+    },
+    {
+      "id": 9,
+      "title": "WhatsApp Business API Mastery",
+      "author": "Mfaratoon",
+      "type": "premium",
+      "emoji": "👑",
+      "description": "Sida loo sameeyo WhatsApp Business chatbot-ka — Cloud API, templates, webhooks.",
+      "file_url": "https://mfaratoon.substack.com/premium",
+      "cover_url": "",
+      "pages": 120,
+      "language": "Somali",
+      "price": "$29"
+    },
+    {
+      "id": 10,
+      "title": "CRM System Build Guide",
+      "author": "Mfaratoon",
+      "type": "premium",
+      "emoji": "👑",
+      "description": "Build your own CRM system with AI — Python, Django, React dashboard.",
+      "file_url": "https://mfaratoon.substack.com/premium",
+      "cover_url": "",
+      "pages": 200,
+      "language": "English/Somali",
+      "price": "$39"
+    }
+  ]
+}
