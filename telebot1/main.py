@@ -92,18 +92,12 @@ async def reply_keyboard_handler(update: Update, context):
         return
 
     handlers = {
-        "📢 Channels":      channels_menu_handler,
-        "👥 Groups":        groups_menu_handler,
-        "📤 Broadcast":     broadcast_menu_cb,
-        "⏰ Schedule":      schedule_menu,
-        "🤖 AI Chat":       ai_menu,
-        "📚 Courses":       courses_menu_handler,
-        "👤 Profile":       profile_command,
-        "⚙️ Settings":     settings_menu_cb,
-        "📞 Support":       support_handler,
-        "☘️ Learn AI":     info_handler,
-        "❓ Help":          help_command,
-        "🔄 Clear Memory":  clear_memory_command,
+        "📢 Channels/Groups": channels_menu_handler,
+        "🤖 AI Chat":         ai_menu,
+        "📚 Courses":         courses_menu_handler,
+        "👤 Profile":         profile_command,
+        "📞 Support":         support_handler,
+        "📌 Menu":            menu_command,
     }
 
     handler = handlers.get(text)

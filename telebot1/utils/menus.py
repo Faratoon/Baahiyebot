@@ -5,28 +5,18 @@ Dhammaan featur-yada hal menu oo weyn ayay ku wada jiraan.
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
 
 
-# ── MAIN MENU (Reply Keyboard) — HAL menu oo weyn ─────────────────────────────
+# ── MAIN MENU (Reply Keyboard) — SIMPLE: 2 rows only ─────────────────────────
 def main_menu_keyboard() -> ReplyKeyboardMarkup:
     keyboard = [
         [
-            KeyboardButton("📢 Channels"),
-            KeyboardButton("👥 Groups"),
-            KeyboardButton("📤 Broadcast"),
-        ],
-        [
-            KeyboardButton("⏰ Schedule"),
-            KeyboardButton("🤖 AI Chat"),
+            KeyboardButton("📢 Channels/Groups"),
             KeyboardButton("📚 Courses"),
+            KeyboardButton("🤖 AI Chat"),
         ],
         [
             KeyboardButton("👤 Profile"),
-            KeyboardButton("⚙️ Settings"),
             KeyboardButton("📞 Support"),
-        ],
-        [
-            KeyboardButton("☘️ Learn AI"),
-            KeyboardButton("❓ Help"),
-            KeyboardButton("🔄 Clear Memory"),
+            KeyboardButton("📌 Menu"),
         ],
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=False)
