@@ -48,7 +48,7 @@ def get_firebase_credentials_path() -> str:
             print(f"[Config] Firebase JSON parse error: {e}")
 
     # Running locally – use file path
-    return os.getenv("FIREBASE_CREDENTIALS_PATH", "data/firebase_credentials.json")
+    return os.getenv("FIREBASE_CREDENTIALS_PATH", "../data/firebase_credentials.json")
 
 FIREBASE_CREDENTIALS_PATH = get_firebase_credentials_path()
 
@@ -61,9 +61,9 @@ MAX_MEDIA_SIZE_B  = MAX_MEDIA_SIZE_MB * 1024 * 1024
 TRIAL_DAYS = int(os.getenv("TRIAL_DAYS", 30))
 
 # ── Links ─────────────────────────────────────────────────────────────────────
-COURSE_CHANNEL   = os.getenv("COURSE_CHANNEL",   "https://t.me/yourchannel")
+COURSE_CHANNEL   = os.getenv("COURSE_CHANNEL",   "https://t.me/Farsamada")
 SUPPORT_USERNAME = os.getenv("SUPPORT_USERNAME", "@Mfaratoon")
-WEBSITE_URL      = os.getenv("WEBSITE_URL",      "https://yourwebsite.com")
+WEBSITE_URL      = os.getenv("WEBSITE_URL",      "https://hibomusic.com")
 
 # ── AI System Prompt ──────────────────────────────────────────────────────────
 AI_SYSTEM_PROMPT = """You are an intelligent AI assistant specialized in helping students 

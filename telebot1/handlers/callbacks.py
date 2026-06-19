@@ -1,16 +1,16 @@
 """
-handlers/callbacks.py  –  Menu callbacks  (FIXED – all buttons working)
+handlers/callbacks.py  –  Simplified callbacks — all routes to main menu
 """
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from telegram.constants import ParseMode
 from utils.menus import (
-    main_inline_menu, broadcast_menu, settings_menu, back_button
+    main_inline_menu, broadcast_menu, settings_menu, back_button,
+    channel_actions, group_actions, courses_main_menu
 )
 from utils import firebase
 
 
-# ── helper: edit or reply ─────────────────────────────────────────────────────
 async def _send(update, text, **kw):
     q = update.callback_query
     if q:
@@ -22,8 +22,9 @@ async def _send(update, text, **kw):
 
 # ── Main Menu ─────────────────────────────────────────────────────────────────
 async def main_menu_cb(update: Update, context):
+    """Return to main menu — also sends the reply keyboard."""
     await _send(update,
-        "🎛️ *Main Menu* — Xulo meesha aad u baahan tahay:",
+        "🎛️ *Main Menu* — Xulo meesha aad u baahan tahay 👇",
         parse_mode=ParseMode.MARKDOWN,
         reply_markup=main_inline_menu()
     )
@@ -32,7 +33,7 @@ async def main_menu_cb(update: Update, context):
 # ── Broadcast Menu ────────────────────────────────────────────────────────────
 async def broadcast_menu_cb(update: Update, context):
     await _send(update,
-        "📤 *Broadcast*\n\nXulo meesha aad u dirtid:",
+        "📤 *Broadcast* — Xulo meesha aad u dirtid:",
         parse_mode=ParseMode.MARKDOWN,
         reply_markup=broadcast_menu()
     )
@@ -40,7 +41,7 @@ async def broadcast_menu_cb(update: Update, context):
 
 # ── Settings Menu ─────────────────────────────────────────────────────────────
 async def settings_menu_cb(update: Update, context):
-    uid  = update.effective_user.id
+    uid = update.effective_user.id
     try:
         prem = firebase.is_premium(uid)
         days = firebase.get_trial_days_left(uid)
@@ -66,10 +67,10 @@ async def set_language_cb(update: Update, context):
         "🌐 *Luuqadda dooro:*",
         parse_mode=ParseMode.MARKDOWN,
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("🇸🇴 Somali",  callback_data="lang_so")],
-            [InlineKeyboardButton("🇸🇦 Arabic",  callback_data="lang_ar")],
-            [InlineKeyboardButton("🇬🇧 English", callback_data="lang_en")],
-            [InlineKeyboardButton("🔙 Back",     callback_data="menu_settings")],
+            [InlineKeyboardButton("🇸🇴 Somali",  callback_data="lang_so"),
+             InlineKeyboardButton("🇸🇦 Arabic",  callback_data="lang_ar"),
+             InlineKeyboardButton("🇬🇧 English", callback_data="lang_en")],
+            [InlineKeyboardButton("🔙 Main Menu", callback_data="menu_main")],
         ])
     )
 
@@ -83,9 +84,9 @@ async def save_language_cb(update: Update, context):
     except Exception:
         pass
     await q.edit_message_text(
-        f"✅ *Luuqadda waa la beddelay!*\n\n{lang} ayaa hadda la isticmaalayaa.",
+        f"✅ *Language changed to {lang}!*",
         parse_mode=ParseMode.MARKDOWN,
-        reply_markup=back_button("menu_settings")
+        reply_markup=back_button()
     )
 
 
@@ -97,9 +98,9 @@ async def notifications_cb(update: Update, context):
         "🔔 *Notifications*\n\nXulo:",
         parse_mode=ParseMode.MARKDOWN,
         reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("🔔 On",   callback_data="notif_on")],
-            [InlineKeyboardButton("🔕 Off",  callback_data="notif_off")],
-            [InlineKeyboardButton("🔙 Back", callback_data="menu_settings")],
+            [InlineKeyboardButton("🔔 On",  callback_data="notif_on"),
+             InlineKeyboardButton("🔕 Off", callback_data="notif_off")],
+            [InlineKeyboardButton("🔙 Main Menu", callback_data="menu_main")],
         ])
     )
 
@@ -115,7 +116,7 @@ async def save_notif_cb(update: Update, context):
     await q.edit_message_text(
         f"{'🔔 Notifications: ON ✅' if val else '🔕 Notifications: OFF ✅'}",
         parse_mode=ParseMode.MARKDOWN,
-        reply_markup=back_button("menu_settings")
+        reply_markup=back_button()
     )
 
 
@@ -128,9 +129,9 @@ async def clear_memory_cb(update: Update, context):
     except Exception:
         pass
     await q.edit_message_text(
-        "🗑️ *AI Memory nadiifnaatay!*\n\nWada hadal cusub bilow — /nano ama /menu",
+        "🗑️ *AI Memory nadiifnaatay!*\n\nWada hadal cusub bilow!",
         parse_mode=ParseMode.MARKDOWN,
-        reply_markup=back_button("menu_settings")
+        reply_markup=back_button()
     )
 
 
@@ -145,6 +146,6 @@ async def action_cancel(update: Update, context):
     )
 
 
-# ── Coming Soon placeholder ───────────────────────────────────────────────────
+# ── Coming Soon ───────────────────────────────────────────────────────────────
 async def coming_soon_cb(update: Update, context):
     await update.callback_query.answer("🚧 Coming soon — stay tuned!", show_alert=True)

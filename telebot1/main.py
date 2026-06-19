@@ -1,6 +1,6 @@
 """
-main.py  –  FINAL CLEAN VERSION  (all bugs fixed)
-Mfaratoon AI Channel & Group Manager Bot
+main.py  –  MERGED: Mfaratoon AI Bot + Somali AI Academy
+All-in-one: Channel/Group manager + AI Chat + 40 Courses
 """
 import logging
 import warnings
@@ -47,7 +47,11 @@ from handlers.admin    import (
     ban_user_start, receive_ban_id,
     ADMIN_BROADCAST_TEXT, ADMIN_PREMIUM_ID, ADMIN_BAN_ID,
 )
-from handlers.courses  import learn_ai_handler, support_handler, info_handler
+from handlers.courses  import (
+    courses_menu_handler, course_list_handler, course_view_handler,
+    course_search_handler, course_search_results, course_ask_ai,
+    support_handler, info_handler,
+)
 from handlers.callbacks import (
     main_menu_cb, action_cancel, coming_soon_cb,
     broadcast_menu_cb, settings_menu_cb,
@@ -69,8 +73,41 @@ logger = logging.getLogger(__name__)
 MEDIA = filters.PHOTO | filters.VIDEO | filters.Document.ALL | filters.AUDIO
 
 
+# ── Reply keyboard text handler ───────────────────────────────────────────────
+async def reply_keyboard_handler(update: Update, context):
+    """Handle text from the reply keyboard buttons."""
+    text = update.message.text.strip()
+
+    # Check if we're awaiting course search
+    if context.user_data.get("awaiting_course_search"):
+        context.user_data["awaiting_course_search"] = False
+        await course_search_results(update, context)
+        return
+
+    handlers = {
+        "📢 Channels":      channels_menu_handler,
+        "👥 Groups":        groups_menu_handler,
+        "📤 Broadcast":     broadcast_menu_cb,
+        "⏰ Schedule":      schedule_menu,
+        "🤖 AI Chat":       ai_menu,
+        "📚 Courses":       courses_menu_handler,
+        "👤 Profile":       profile_command,
+        "⚙️ Settings":     settings_menu_cb,
+        "📞 Support":       support_handler,
+        "☘️ Learn AI":     info_handler,
+        "❓ Help":          help_command,
+        "🔄 Clear Memory":  clear_memory_command,
+    }
+
+    handler = handlers.get(text)
+    if handler:
+        await handler(update, context)
+        return
+
+
 def build_conversations():
-    """Build all ConversationHandlers and return as list."""
+    """Build all ConversationHandlers."""
+    conversations = []
 
     add_ch = ConversationHandler(
         entry_points=[
@@ -84,6 +121,7 @@ def build_conversations():
         fallbacks=[CommandHandler("cancel", lambda u, c: ConversationHandler.END)],
         per_message=False, allow_reentry=True,
     )
+    conversations.append(add_ch)
 
     broadcast = ConversationHandler(
         entry_points=[
@@ -99,6 +137,7 @@ def build_conversations():
         fallbacks=[CommandHandler("cancel", lambda u, c: ConversationHandler.END)],
         per_message=False, allow_reentry=True,
     )
+    conversations.append(broadcast)
 
     delete_post = ConversationHandler(
         entry_points=[CallbackQueryHandler(delete_post_start, pattern="^ch_delete$")],
@@ -110,6 +149,7 @@ def build_conversations():
         fallbacks=[CommandHandler("cancel", lambda u, c: ConversationHandler.END)],
         per_message=False, allow_reentry=True,
     )
+    conversations.append(delete_post)
 
     edit_post = ConversationHandler(
         entry_points=[CallbackQueryHandler(edit_post_start, pattern="^ch_edit$")],
@@ -124,6 +164,7 @@ def build_conversations():
         fallbacks=[CommandHandler("cancel", lambda u, c: ConversationHandler.END)],
         per_message=False, allow_reentry=True,
     )
+    conversations.append(edit_post)
 
     sched = ConversationHandler(
         entry_points=[CallbackQueryHandler(schedule_new_start, pattern="^sched_new$")],
@@ -139,6 +180,7 @@ def build_conversations():
         fallbacks=[CommandHandler("cancel", lambda u, c: ConversationHandler.END)],
         per_message=False, allow_reentry=True,
     )
+    conversations.append(sched)
 
     welcome = ConversationHandler(
         entry_points=[
@@ -152,6 +194,7 @@ def build_conversations():
         fallbacks=[CommandHandler("cancel", lambda u, c: ConversationHandler.END)],
         per_message=False, allow_reentry=True,
     )
+    conversations.append(welcome)
 
     adm_bc = ConversationHandler(
         entry_points=[CallbackQueryHandler(admin_broadcast_start, pattern="^adm_broadcast$")],
@@ -163,6 +206,7 @@ def build_conversations():
         fallbacks=[CommandHandler("cancel", lambda u, c: ConversationHandler.END)],
         per_message=False, allow_reentry=True,
     )
+    conversations.append(adm_bc)
 
     adm_prem = ConversationHandler(
         entry_points=[CallbackQueryHandler(grant_premium_start, pattern="^adm_premium$")],
@@ -174,6 +218,7 @@ def build_conversations():
         fallbacks=[CommandHandler("cancel", lambda u, c: ConversationHandler.END)],
         per_message=False, allow_reentry=True,
     )
+    conversations.append(adm_prem)
 
     adm_ban = ConversationHandler(
         entry_points=[CallbackQueryHandler(ban_user_start, pattern="^adm_ban$")],
@@ -185,9 +230,9 @@ def build_conversations():
         fallbacks=[CommandHandler("cancel", lambda u, c: ConversationHandler.END)],
         per_message=False, allow_reentry=True,
     )
+    conversations.append(adm_ban)
 
-    return [add_ch, broadcast, delete_post, edit_post, sched, welcome,
-            adm_bc, adm_prem, adm_ban]
+    return conversations
 
 
 def main():
@@ -210,6 +255,7 @@ def main():
         ("settings",   settings_menu_cb),
         ("admin",      admin_command),
         ("clear",      clear_memory_command),
+        ("courses",    courses_menu_handler),
         ("nano",       nano_command),
         ("midjourney", midjourney_command),
         ("sora",       sora_command),
@@ -229,7 +275,7 @@ def main():
         ("^menu_broadcast$",   broadcast_menu_cb),
         ("^menu_settings$",    settings_menu_cb),
         ("^menu_ai$",          ai_menu),
-        ("^menu_learn$",       learn_ai_handler),
+        ("^menu_courses$",     courses_menu_handler),
         ("^menu_schedule$",    schedule_menu),
         ("^menu_profile$",     profile_command),
         ("^menu_support$",     support_handler),
@@ -238,8 +284,12 @@ def main():
         # AI model selection
         ("^ai_(nano|midjourney|sora|gpt_image|flux|veo|chat)$", select_ai_model),
 
-        # Learn / Courses
-        ("^learn_",            learn_ai_handler),
+        # Courses
+        ("^course_list$",        course_list_handler),
+        ("^course_page_\\d+$",   course_list_handler),
+        ("^course_view_\\d+$",   course_view_handler),
+        ("^course_search$",      course_search_handler),
+        ("^course_ask$",         course_ask_ai),
 
         # Channels / Groups
         ("^(ch_list|grp_list)$",  list_channels),
@@ -272,27 +322,27 @@ def main():
         app.add_handler(CallbackQueryHandler(fn, pattern=pattern))
 
     # ── Messages ─────────────────────────────────────────────────────────────
-    app.add_handler(MessageHandler(
-        filters.StatusUpdate.NEW_CHAT_MEMBERS, new_member_handler
-    ))
+    # Reply keyboard text handler
     app.add_handler(MessageHandler(
         filters.TEXT & ~filters.COMMAND & filters.ChatType.PRIVATE,
-        ai_chat_handler
+        reply_keyboard_handler
     ))
+
+    # New chat members
     app.add_handler(MessageHandler(
-        MEDIA & filters.ChatType.PRIVATE,
-        ai_chat_handler
+        filters.StatusUpdate.NEW_CHAT_MEMBERS, new_member_handler
     ))
 
     # ── Start ────────────────────────────────────────────────────────────────
     scheduler.start()
     logger.info("Scheduler started.")
 
-    print("\n" + "═"*50)
+    print("\n" + "═" * 50)
     print("  🤖  Mfaratoon AI Bot — ONLINE ✅")
     print("  📲  Telegram: /start")
+    print("  📚  Courses: /courses (40 lessons)")
     print("  🛑  Stop: Ctrl+C")
-    print("═"*50 + "\n")
+    print("═" * 50 + "\n")
 
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 

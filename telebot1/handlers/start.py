@@ -1,5 +1,5 @@
 """
-handlers/start.py  –  /start, /help, /menu  (FIXED – handles message + callback)
+handlers/start.py  –  /start, /help, /menu  — Single menu for merged bot
 """
 from telegram import Update
 from telegram.ext import ContextTypes
@@ -11,30 +11,27 @@ from utils import firebase
 WELCOME_TEXT = """\
 🌟 *Ku soo dhawow {name}!*
 
-━━━━━━━━━━━━━━━━━━━━━
-🤖 *AI Channel & Group Manager Bot*
-━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🤖 *Mfaratoon AI — All-in-One Bot*
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✅ *Bot-kan wuxuu kuu sahlayaa:*
+📢 *Channel & Group Management*
+📤 Broadcast, ✏️ Edit, 🗑️ Delete, ⏰ Schedule
 
-📢 Channels & Groups maamul
-📤 Hal mar dhammaan channels u dir
-⏰ Posts qorso (Schedule)
-✏️ Edit · 🗑️ Delete posts
-🎉 Welcome messages auto
-🤖 AI Assistant (Somali / Arabic / English)
-☘️ 40+ Koorso FREE
+🤖 *AI Assistant* (Somali / Arabic / English)
 
-━━━━━━━━━━━━━━━━━━━━━
-⏳ *Trial:* `{trial_days}` days remaining
-━━━━━━━━━━━━━━━━━━━━━
+📚 *40+ Koorso FREE* — Raadi, daalaco, baro!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏳ Trial: `{trial_days}` days remaining
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👇 *Menu-ga hoose xulo:*
 """
 
 HELP_TEXT = """\
 📖 *Commands Guide*
-━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━
 
 🏠 *General:*
 /start      → Menu ugu weyn
@@ -48,6 +45,10 @@ HELP_TEXT = """\
 /broadcast  → Dhammaan u dir
 /schedule   → Post qorso
 
+📚 *Courses:*
+/courses    → 40+ koorso daalaco
+/course     → Courses browser
+
 🤖 *AI Models:*
 /nano       → 💬 Nano Banana
 /midjourney → 🎨 Midjourney
@@ -60,9 +61,8 @@ HELP_TEXT = """\
 /settings   → Settings
 /clear      → AI memory nadiifi
 /admin      → Admin panel (admins)
-/cancel     → Wax jooji
 
-━━━━━━━━━━━━━━━━━━━━━
+━━━━━━━━━━━━━━━━━━━━━━━
 💡 Buttons-ka hoose waa ugu fudud!
 """
 
@@ -71,7 +71,6 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     uid  = user.id
 
-    # Save/update user in Firebase
     try:
         firebase.create_or_update_user(uid, {
             "user_id":    uid,
@@ -91,11 +90,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode=ParseMode.MARKDOWN,
         reply_markup=main_menu_keyboard()
     )
-    await update.message.reply_text(
-        "🎛️ *Main Menu:*",
-        parse_mode=ParseMode.MARKDOWN,
-        reply_markup=main_inline_menu()
-    )
+    # No duplicate inline menu — the reply keyboard has everything!
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):

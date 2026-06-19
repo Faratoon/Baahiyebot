@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="so">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Mfaratoon AI Bot</title>
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --card2: #16213e;
+      --accent: #00d4aa;
+      --accent2: #ff6b6b;
+      --text: #e0e0e0;
+      --text2: #8888aa;
+      --shadow: 0 4px 20px rgba(0, 212, 170, 0.15);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 16px;
+      padding-bottom: 80px;
+    }
+    .header {
+      text-align: center;
+      padding: 24px 0 16px;
+    }
+    .logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #00aaff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 36px;
+      box-shadow: 0 0 30px rgba(0, 212, 170, 0.3);
+    }
+    .header h1 {
+      font-size: 22px;
+      background: linear-gradient(135deg, var(--accent), #00aaff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header p {
+      color: var(--text2);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    /* Search */
+    .search-box {
+      margin: 16px 0;
+      position: relative;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 14px 16px 14px 44px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      background: var(--card);
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      transition: all 0.3s;
+    }
+    .search-box input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 15px rgba(0, 212, 170, 0.1);
+    }
+    .search-box .icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      opacity: 0.5;
+    }
+
+    /* Category Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 18px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .card:active {
+      transform: scale(0.95);
+      border-color: var(--accent);
+    }
+    .card .icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    .card .label {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .card .count {
+      font-size: 11px;
+      color: var(--text2);
+      margin-top: 3px;
+    }
+    .card .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #000;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-top: 6px;
+    }
+
+    /* Section */
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 20px 0 10px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title span {
+      color: var(--text2);
+      font-weight: 400;
+      font-size: 12px;
+    }
+
+    /* Lesson List */
+    .lesson-item {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+    .lesson-item:active {
+      transform: scale(0.98);
+      border-color: var(--accent);
+    }
+    .lesson-item .num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .lesson-item .info {
+      flex: 1;
+    }
+    .lesson-item .info h4 {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .lesson-item .info p {
+      font-size: 11px;
+      color: var(--text2);
+      margin-top: 2px;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .lesson-item .play {
+      font-size: 20px;
+      opacity: 0.6;
+    }
+
+    /* Lesson Detail Panel */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .overlay.active { display: block; }
+    .detail-card {
+      background: var(--card2);
+      border-radius: 20px;
+      padding: 24px;
+      margin-top: 40px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .detail-card .close {
+      float: right;
+      background: none;
+      border: none;
+      color: var(--text2);
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .detail-card .emoji-big {
+      font-size: 48px;
+      text-align: center;
+      margin: 8px 0;
+    }
+    .detail-card h2 {
+      font-size: 18px;
+      margin: 12px 0 8px;
+      text-align: center;
+    }
+    .detail-card .course-tag {
+      display: inline-block;
+      background: rgba(0,212,170,0.15);
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      margin-bottom: 12px;
+    }
+    .detail-card p {
+      color: var(--text2);
+      font-size: 14px;
+      line-height: 1.6;
+      margin: 12px 0;
+    }
+    .detail-card .watch-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--accent), #00aaff);
+      color: #000;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-align: center;
+      text-decoration: none;
+    }
+    .detail-card .watch-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* Bottom Nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(15, 15, 26, 0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-around;
+    }
+    .nav-item {
+      text-align: center;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 10px;
+      transition: all 0.2s;
+      border: none;
+      background: none;
+      color: var(--text2);
+    }
+    .nav-item.active {
+      color: var(--accent);
+    }
+    .nav-item .ni {
+      font-size: 20px;
+    }
+    .nav-item .nl {
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: var(--text2);
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--card);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .search-results {
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">🤖</div>
+  <h1>Mfaratoon AI Bot</h1>
+  <p>All-in-One • Channel Manager • 70+ Lessons</p>
+</div>
+
+<!-- Search -->
+<div class="search-box">
+  <span class="icon">🔍</span>
+  <input type="text" id="searchInput" placeholder="Search lessons... (e.g. chatbot, n8n, AI)" oninput="searchLessons(this.value)">
+</div>
+
+<!-- Quick Categories -->
+<div class="section-title">⚡ Quick Actions <span>tap to open in bot</span></div>
+<div class="grid" id="quickGrid">
+  <div class="card" onclick="window.Telegram.WebApp.sendData('channels')">
+    <div class="icon">📢</div>
+    <div class="label">Channels</div>
+    <div class="count">Manage & broadcast</div>
+  </div>
+  <div class="card" onclick="window.Telegram.WebApp.sendData('courses')">
+    <div class="icon">📚</div>
+    <div class="label">Courses</div>
+    <div class="count">70+ lessons</div>
+  </div>
+  <div class="card" onclick="window.Telegram.WebApp.sendData('ai_chat')">
+    <div class="icon">🤖</div>
+    <div class="label">AI Chat</div>
+    <div class="count">Somali / English</div>
+  </div>
+  <div class="card" onclick="window.Telegram.WebApp.sendData('schedule')">
+    <div class="icon">⏰</div>
+    <div class="label">Schedule</div>
+    <div class="count">Auto-post</div>
+  </div>
+  <div class="card" onclick="window.Telegram.WebApp.sendData('profile')">
+    <div class="icon">👤</div>
+    <div class="label">Profile</div>
+    <div class="count">Stats & premium</div>
+  </div>
+  <div class="card" onclick="window.Telegram.WebApp.sendData('support')">
+    <div class="icon">📞</div>
+    <div class="label">Support</div>
+    <div class="count">Talk to Mfaratoon</div>
+  </div>
+</div>
+
+<!-- Lessons -->
+<div class="section-title">📚 Latest Lessons <span id="lessonCount">loading...</span></div>
+<div id="lessonList">
+  <div class="loading">
+    <div class="spinner"></div>
+    <p>Loading lessons...</p>
+  </div>
+</div>
+
+<!-- Search Results -->
+<div id="searchResults"></div>
+
+<!-- Detail Overlay -->
+<div class="overlay" id="detailOverlay">
+  <div class="detail-card">
+    <button class="close" onclick="closeDetail()">✕</button>
+    <div class="emoji-big" id="detailEmoji">📖</div>
+    <h2 id="detailTitle">Lesson Title</h2>
+    <span class="course-tag" id="detailCourse">Course Name</span>
+    <p id="detailDesc">Description...</p>
+    <a class="watch-btn" id="detailLink" href="#" target="_blank">▶️ Watch on YouTube</a>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+  <button class="nav-item active" onclick="window.Telegram.WebApp.sendData('menu')">
+    <div class="ni">🏠</div>
+    <div class="nl">Home</div>
+  </button>
+  <button class="nav-item" onclick="window.Telegram.WebApp.sendData('courses')">
+    <div class="ni">📚</div>
+    <div class="nl">Courses</div>
+  </button>
+  <button class="nav-item" onclick="window.Telegram.WebApp.sendData('ai_chat')">
+    <div class="ni">🤖</div>
+    <div class="nl">AI Chat</div>
+  </button>
+  <button class="nav-item" onclick="window.Telegram.WebApp.sendData('support')">
+    <div class="ni">📞</div>
+    <div class="nl">Support</div>
+  </button>
+</div>
+
+<script>
+// ── Data: Hard-coded from courses.json ────────────────────────────────────
+const LESSONS = [
+  { num: 1, title: "Chatbot Aasaaska", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Aasaaska chatbot-ka, sida ay u shaqeeyaan iyo muhiimada ay u leeyihiin maanta.", link: "https://www.youtube.com/watch?v=zVwhZ9jH0qY", emoji: "🤖" },
+  { num: 2, title: "Chatbots Noocyada", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Noocyada kala duwan ee chatbots-ka iyo adeegsigooda goobo kala duwan.", link: "https://www.youtube.com/watch?v=dkMO_-Sa1EY", emoji: "🤖" },
+  { num: 3, title: "Knowledge Base Pipeline", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo dhiso knowledge base pipeline u shaqeeya chatbot-ka.", link: "https://www.youtube.com/watch?v=E4nxnDdsPT8", emoji: "🧠" },
+  { num: 4, title: "ManyChat Bilow", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo bilowdo ManyChat iyo aasaaska uu u shaqeeyo.", link: "https://www.youtube.com/watch?v=FlaqS831-nM", emoji: "💬" },
+  { num: 5, title: "Bot Macallin Xisaab", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo sameeyo bot u qabta xisaabta sida macallin.", link: "https://www.youtube.com/watch?v=sbczVS6MDWI", emoji: "🔢" },
+  { num: 6, title: "ManyChat Hordhac", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Hordhac dhammaystiran oo ku saabsan ManyChat iyo howlaheeda.", link: "https://www.youtube.com/watch?v=y03ckrI0ezc", emoji: "💬" },
+  { num: 7, title: "Knowledge Base Manus AI", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo isticmaalo Manus AI si loo dhiso knowledge base.", link: "https://www.youtube.com/watch?v=r_aHgos0dZg", emoji: "🧠" },
+  { num: 8, title: "Prompt Heer Sare", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo qoro prompts heer sare ah oo waxtar leh.", link: "https://www.youtube.com/watch?v=60JgZXi930k", emoji: "✍️" },
+  { num: 9, title: "Prompts Customization", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo customize-gareeyo prompts si ay ugu habboonaato baahidaada.", link: "https://www.youtube.com/watch?v=I2j7AArFIGQ", emoji: "✍️" },
+  { num: 10, title: "Comet AI Browser", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Adeegsiga Comet AI Browser iyo sida looga faa'iidaysto.", link: "https://www.youtube.com/watch?v=R0xhBLqj6ys", emoji: "🌐" },
+  { num: 11, title: "Manus AI Shaqo Fudud", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida Manus AI kuugu fududeyn karo shaqooyinka maalinlaha ah.", link: "https://www.youtube.com/watch?v=0S6ArHPgpCA", emoji: "🤖" },
+  { num: 12, title: "Paal AI Telegram Bot", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo sameeyo bot Telegram ah oo adeegsanaya Paal AI.", link: "https://www.youtube.com/watch?v=SEfx-QRnJsU", emoji: "📲" },
+  { num: 13, title: "Paal AI Part 2", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Qaybta labaad ee Paal AI — howlo horumarsan.", link: "https://www.youtube.com/watch?v=Jc6ct8O1zLw", emoji: "📲" },
+  { num: 14, title: "YouMind AI Waxbarasho", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo isticmaalo YouMind AI ujeedooyin waxbarasho.", link: "https://www.youtube.com/watch?v=who5zXdmohA", emoji: "🧠" },
+  { num: 15, title: "WhatsApp vs Telegram Bot", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Farqiga u dhexeeya WhatsApp Bot iyo Telegram Bot.", link: "https://www.youtube.com/watch?v=N6Gu_mHetIc", emoji: "💬" },
+  { num: 16, title: "Custom ChatGPT", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo sameeyo ChatGPT-ga u gaarka ah adiga.", link: "https://www.youtube.com/watch?v=aXrrjehQgh0", emoji: "🤖" },
+  { num: 17, title: "Prompt Instructions", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Tilmaamaha saxda ah ee loo qoro prompts waxtar leh.", link: "https://www.youtube.com/watch?v=dnqFGfKLb4Y", emoji: "✍️" },
+  { num: 18, title: "Gemini GEMS AI", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo isticmaalo Gemini GEMS AI.", link: "https://www.youtube.com/watch?v=vaEaWf1-VWU", emoji: "💎" },
+  { num: 19, title: "Perplexity AI Mobile", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Adeegsiga Perplexity AI mobile-ka.", link: "https://www.youtube.com/watch?v=EUvNqeLF0AA", emoji: "📱" },
+  { num: 20, title: "AI Quiz Tool", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo sameeyo quiz-yo iyadoo la adeegsanayo AI.", link: "https://www.youtube.com/watch?v=XlopdHYs2aI", emoji: "📝" },
+  { num: 21, title: "ManyChat 3", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Qaybta saddexaad ee ManyChat — howlo horumarsan.", link: "https://www.youtube.com/watch?v=L9WwTphvuYU", emoji: "💬" },
+  { num: 22, title: "FB Messenger Bot", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo sameeyo bot u shaqeeya Facebook Messenger-ka.", link: "https://www.youtube.com/watch?v=2IFflSsAzys", emoji: "📘" },
+  { num: 23, title: "Messenger Customer Service", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida Messenger bot loogu isticmaalo adeegga macaamiisha.", link: "https://www.youtube.com/watch?v=On6q9Xc0--Q", emoji: "📘" },
+  { num: 24, title: "Botpress Knowledge Base", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo dhiso knowledge base Botpress.", link: "https://www.youtube.com/watch?v=mNLJ-8dZwvg", emoji: "🧠" },
+  { num: 25, title: "WhatsApp Telegram Marketing", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loogu isticmaalo WhatsApp iyo Telegram suuqgeynta.", link: "https://www.youtube.com/watch?v=5Lu9jcaP220", emoji: "📊" },
+  { num: 26, title: "Canva AI Sawirro", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida looga faa'iidaysto Canva AI si loo sameeyo sawirro.", link: "https://www.youtube.com/watch?v=5tEtbYLetkU", emoji: "🎨" },
+  { num: 27, title: "AI Sawir Samee", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo sameeyo sawirro iyadoo la adeegsanayo AI.", link: "https://www.youtube.com/watch?v=wu4oubHInMY", emoji: "🎨" },
+  { num: 28, title: "VEO 3 Google Video AI", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo isticmaalo VEO 3 Google Video AI.", link: "https://www.youtube.com/watch?v=JBDMbL8VzGo", emoji: "🎥" },
+  { num: 29, title: "Quiz DeepSeek Telegram", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo sameeyo quiz DeepSeek ah oo ku yaal Telegram.", link: "https://www.youtube.com/watch?v=mGxS8tw-fUc", emoji: "📝" },
+  { num: 30, title: "Monica AI Af-Soomaali", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo isticmaalo Monica AI oo ah luuqadda Soomaaliga.", link: "https://www.youtube.com/watch?v=RHq7027Y4U4", emoji: "🇸🇴" },
+  { num: 31, title: "Telegram Bot A to Z", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Dhammaystir — dhammaan waxa ku saabsan Telegram Bot.", link: "https://www.youtube.com/watch?v=TwKLnqnjxsQ", emoji: "📲" },
+  { num: 32, title: "Google Bard vs Meta AI", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Isbarbardhiga Google Bard iyo Meta AI.", link: "https://www.youtube.com/watch?v=bFtgqnhEX88", emoji: "⚔️" },
+  { num: 33, title: "Offline AI Apps", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Barnaamijyada AI-ga ee shaqeeya internet la'aan.", link: "https://www.youtube.com/watch?v=Pn1kU1et7oI", emoji: "📴" },
+  { num: 34, title: "WhatsApp 2025", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo isticmaalo WhatsApp sannadka 2025.", link: "https://www.youtube.com/watch?v=aJFGVD5vilM", emoji: "💬" },
+  { num: 35, title: "Linux Hordhac", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Hordhac ku saabsan Linux.", link: "https://www.youtube.com/watch?v=I2F1-5dk3hQ", emoji: "🐧" },
+  { num: 36, title: "Linux ku Soo Dag", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida Linux loogu soo dejiyo.", link: "https://www.youtube.com/watch?v=7K4aibOiPQ4", emoji: "🐧" },
+  { num: 37, title: "Apps Internet Security", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Barnaamijyada ammaanka internetka.", link: "https://www.youtube.com/watch?v=_RWyy40XfM0", emoji: "🔒" },
+  { num: 38, title: "AI Video Editing Somalia", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo tafatiro videos-ka AI iyadoo laga hadlayo luuqadda Soomaaliga.", link: "https://www.youtube.com/watch?v=7MB2xCbLt1M", emoji: "🎬" },
+  { num: 39, title: "Thumbnail Professional", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida loo sameeyo Thumbnail heer sare ah.", link: "https://www.youtube.com/watch?v=R2g7f5kXpI0", emoji: "🖼️" },
+  { num: 40, title: "AI Photo Animation", course: "KOORSADA 1: 40 Cashar AI (YouTube)", desc: "Sida sawirrada looga dhigo animation iyadoo la adeegsanayo AI.", link: "https://www.youtube.com/watch?v=M9m-dIe46qM", emoji: "🎭" },
+  // Course 2: AI Video Editing
+  { num: 41, title: "InVideo Fundamentals", course: "KOORSADA 2: 14 Maalmood AI Video Editing", desc: "Aasaaska InVideo — templates, text-to-video, AI layouts.", link: "https://www.loom.com/share/8465169f3ed34080a9223c7dd8cafb37", emoji: "🎬" },
+  { num: 42, title: "InVideo – Creating Video from Text", course: "KOORSADA 2: 14 Maalmood AI Video Editing", desc: "Qoraalka loogu beddelo video, isku darka sawirrada.", link: "https://www.loom.com/share/77792231bc8140008e8eeaab77b3d788", emoji: "🎬" },
+  { num: 43, title: "Pictory.ai Introduction", course: "KOORSADA 2: 14 Maalmood AI Video Editing", desc: "Hordhac ku saabsan Pictory.ai — automation & social media.", link: "https://www.loom.com/share/a63c2b5554274df2a7e97975851834ef", emoji: "🎬" },
+  { num: 44, title: "Pictory Professional Editing", course: "KOORSADA 2: 14 Maalmood AI Video Editing", desc: "Habab heer sare ah oo lagu tafatiro videos-ka Pictory.", link: "https://www.loom.com/share/5df200096f084354bfd41ca0551edf2f", emoji: "🎬" },
+  { num: 45, title: "Pictory.ai – AI-Powered Video Editing", course: "KOORSADA 2: 14 Maalmood AI Video Editing", desc: "Sida Pictory.ai u isticmaasho AI si ay u tafatirto videos-ka.", link: "https://www.loom.com/share/f03cfff5dc0a4222842ba074b123ab39", emoji: "🎬" },
+  { num: 46, title: "Lumen5 – Ready-made Templates", course: "KOORSADA 2: 14 Maalmood AI Video Editing", desc: "Sida loo abuuro videos-ka iyadoo la adeegsanayo templates-ka Lumen5.", link: "https://www.loom.com/share/1f638be8ca1a4c5a8a110921803e54bd", emoji: "🎬" },
+  { num: 47, title: "Lumen5 Editing Interface", course: "KOORSADA 2: 14 Maalmood AI Video Editing", desc: "Faahfaahinta qalabka tifatirka ee Lumen5.", link: "https://www.loom.com/share/b7c491c56fff4926a2cdc8a92730e9f0", emoji: "🎬" },
+  { num: 48, title: "Lumen5 – Audio and Visual", course: "KOORSADA 2: 14 Maalmood AI Video Editing", desc: "Sida loo daro codka, sawirrada, iyo horumarinta muuqaalka.", link: "https://www.loom.com/share/42b2100320884386ada6af388c9e6495", emoji: "🎬" },
+  { num: 49, title: "Audio Refinement – Lumen5", course: "KOORSADA 2: 14 Maalmood AI Video Editing", desc: "Farsamooyinka lagu abuuro oo lagu hagaajiyo codka gudaha Lumen5.", link: "https://www.loom.com/share/1e44a27acab9467582d965fa4c9bb4a1", emoji: "🎬" },
+  { num: 50, title: "Additional Resources", course: "KOORSADA 2: 14 Maalmood AI Video Editing", desc: "Ilodheeraad dheeraad ah — PDF iyo Substack qoraallo.", link: "https://open.substack.com/pub/mfaratoon/p/9-cashar-ai-video-editing?r=ogczv", emoji: "📚" },
+  // Course 3: Dropshipping
+  { num: 51, title: "MAXAA KU DOORNAY ZENDROP", course: "KOORSADA 3: Dropshipping iyo Zendrop AI", desc: "Sababta Zendrop loogu door biday koorsooyinka Dropshipping-ga.", link: "https://www.loom.com/share/a5f8d34a8bac4bd9be5d0c4b159286cd", emoji: "📦" },
+  { num: 52, title: "Zendrop AI Iyo Dropshippingka", course: "KOORSADA 3: Dropshipping iyo Zendrop AI", desc: "Sida Zendrop AI-ga loogu isticmaalo Dropshipping-ka.", link: "https://www.loom.com/share/9f2291c7056e45beae291b2505caf496", emoji: "📦" },
+  { num: 53, title: "Telegram AI Advanced ah", course: "KOORSADA 3: Dropshipping iyo Zendrop AI", desc: "Sida loo sameeyo Telegram bot oo AI sare leh.", link: "https://www.loom.com/share/6c78f630461d4fccb835f072e5edbfe1", emoji: "📲" },
+  { num: 54, title: "AI Dropshipping Fududeydii", course: "KOORSADA 3: Dropshipping iyo Zendrop AI", desc: "Sida AI-ga hawsha Dropshipping-ku ugu fududeeyay.", link: "https://www.loom.com/share/27c48641a1ed42c084b2d637501ff409", emoji: "📦" },
+  { num: 55, title: "Appka Zendrop ku Shub", course: "KOORSADA 3: Dropshipping iyo Zendrop AI", desc: "Habka loogu shubo oo loo rakibo app-ka Zendrop.", link: "https://www.loom.com/share/0ac9d7cd352b462292a42e657fe0668d", emoji: "📦" },
+  { num: 56, title: "QAABKA AI SHAQADA U FUDUDEEYEY", course: "KOORSADA 3: Dropshipping iyo Zendrop AI", desc: "Sida AI-ga ugu cajiibsan uu u fududeeyay Dropshipping-ka.", link: "https://www.loom.com/share/96535223749b4347919003b77b1765af", emoji: "🤖" },
+  { num: 57, title: "ISKU XIDHKA HALKII AAN KA SOO BILOWNAY", course: "KOORSADA 3: Dropshipping iyo Zendrop AI", desc: "Isku xidhka u dhexeeya halkii aan ka bilownay iyo No Tech.", link: "https://www.loom.com/share/9913a2b3c4f84de0bc874a69e21fb921", emoji: "🔗" },
+  { num: 58, title: "DULMAR GUUD OO KU SAABSAN WAXAA BARANAY", course: "KOORSADA 3: Dropshipping iyo Zendrop AI", desc: "Dulmar guud oo ku saabsan dhammaan waxyaabaha koorsada lagu baranayo.", link: "https://www.loom.com/share/600f81758476491bbbbbc4e8518fc9d5", emoji: "📋" },
+  { num: 59, title: "ADEEGYADA UGU DAMBEYEY DROPSHIPPING", course: "KOORSADA 3: Dropshipping iyo Zendrop AI", desc: "Adeegyada ugu dambeeyay ee Dropshipping-ga iyo sida AI uu ugu jiro.", link: "https://www.loom.com/share/0b5a69dbae8249f38c71b0146645ee77", emoji: "📦" },
+  { num: 60, title: "DHAMAYSTIRE GUUD", course: "KOORSADA 3: Dropshipping iyo Zendrop AI", desc: "Dhamaystir guud — sida AI-ga noogu dhameeyey hawsha oo dhan.", link: "https://www.loom.com/share/21ed0c84d67c425cb4aa9a0636c233fd", emoji: "✅" },
+  // Course 4: Community
+  { num: 61, title: "WhatsApp Group (Quiz & Support)", course: "ILOODHEERAAD Iyo Bulshada", desc: "Kooxda WhatsApp-ka ee Quiz-yada iyo taageerada.", link: "https://chat.whatsapp.com/BRk1xgsg4ohKAaWN7oDRIe", emoji: "💬" },
+  { num: 62, title: "Telegram Channel (Updates & Files)", course: "ILOODHEERAAD Iyo Bulshada", desc: "Kanaalka Telegram-ka ee cusboonaadyada iyo faylasha.", link: "https://t.me/+eJxxMKtunMcwODhk", emoji: "📢" },
+  { num: 63, title: "Free AI Channel (Tools & Tips)", course: "ILOODHEERAAD Iyo Bulshada", desc: "Kanaalka Telegram-ka ee AI Tools iyo tifaftiro.", link: "https://t.me/Farsamada", emoji: "🔧" },
+  { num: 64, title: "AI-Chatbot Learning WhatsApp", course: "ILOODHEERAAD Iyo Bulshada", desc: "Kooxda WhatsApp-ka ee barashada AI iyo Chatbot-yada.", link: "https://chat.whatsapp.com/KzkcjwraeYhCsUXaexgNyM", emoji: "🤖" },
+  { num: 65, title: "AI Video Editing WhatsApp", course: "ILOODHEERAAD Iyo Bulshada", desc: "Kooxda WhatsApp-ka ee AI Video Editing.", link: "https://chat.whatsapp.com/G9phNqLyJ3L2RV4lprLUb7", emoji: "🎬" },
+  { num: 66, title: "AI Automation WhatsApp", course: "ILOODHEERAAD Iyo Bulshada", desc: "Kooxda WhatsApp-ka ee AI Automation.", link: "https://chat.whatsapp.com/BRk1xgsg4ohKAaWN7oDRIe", emoji: "⚡" },
+  { num: 67, title: "YouTube Channel", course: "ILOODHEERAAD Iyo Bulshada", desc: "Kanaalka YouTube-ka — dhammaan casharrada video-ga.", link: "https://m.youtube.com/user/MrFaraton", emoji: "📺" },
+  { num: 68, title: "Facebook Community", course: "ILOODHEERAAD Iyo Bulshada", desc: "Bogga Facebook-ka — bandhigyada tooska ah (Live).", link: "https://www.facebook.com/soomaalipodcast", emoji: "📘" },
+  { num: 69, title: "Substack (Blog)", course: "ILOODHEERAAD Iyo Bulshada", desc: "Substack-ka — casharro cusub iyo qoraallo AI ah.", link: "https://mfaratoon.substack.com/", emoji: "📝" },
+  { num: 70, title: "Course Page", course: "ILOODHEERAAD Iyo Bulshada", desc: "Bogga koorsada — login protection, professional UI.", link: "https://mfaratoon-nebvh2nc.manus.space/course", emoji: "🌐" },
+];
+
+// ── Render ────────────────────────────────────────────────────────────────
+function renderLessons(list) {
+  const container = document.getElementById('lessonList');
+  const count = document.getElementById('lessonCount');
+  count.textContent = `(${list.length} lessons)`;
+
+  if (list.length === 0) {
+    container.innerHTML = '<div class="loading"><p>No lessons found</p></div>';
+    return;
+  }
+
+  container.innerHTML = list.map(l => `
+    <div class="lesson-item" onclick="showDetail(${l.num - 1})">
+      <div class="num">${l.num}</div>
+      <div class="info">
+        <h4>${l.title}</h4>
+        <p>${l.course} — ${l.desc.slice(0, 60)}...</p>
+      </div>
+      <div class="play">▶</div>
+    </div>
+  `).join('');
+}
+
+function showDetail(index) {
+  const l = LESSONS[index];
+  document.getElementById('detailEmoji').textContent = l.emoji || '📖';
+  document.getElementById('detailTitle').textContent = `${l.num}. ${l.title}`;
+  document.getElementById('detailCourse').textContent = l.course;
+  document.getElementById('detailDesc').textContent = l.desc;
+  document.getElementById('detailLink').href = l.link;
+  document.getElementById('detailOverlay').classList.add('active');
+}
+
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('active');
+}
+
+function searchLessons(query) {
+  const resultsContainer = document.getElementById('searchResults');
+  const lessonContainer = document.getElementById('lessonList');
+
+  if (!query || query.length < 2) {
+    resultsContainer.innerHTML = '';
+    lessonContainer.style.display = 'block';
+    return;
+  }
+
+  lessonContainer.style.display = 'none';
+  const q = query.toLowerCase();
+  const matches = LESSONS.filter(l =>
+    l.title.toLowerCase().includes(q) ||
+    l.desc.toLowerCase().includes(q) ||
+    l.course.toLowerCase().includes(q)
+  );
+
+  if (matches.length === 0) {
+    resultsContainer.innerHTML = '<div class="loading"><p>❌ No results found</p></div>';
+    return;
+  }
+
+  resultsContainer.innerHTML = `
+    <div class="section-title">🔍 Results: ${matches.length} found</div>
+    ${matches.map(l => `
+      <div class="lesson-item" onclick="showDetail(${l.num - 1})">
+        <div class="num">${l.num}</div>
+        <div class="info">
+          <h4>${l.title}</h4>
+          <p>${l.course}</p>
+        </div>
+        <div class="play">▶</div>
+      </div>
+    `).join('')}
+  `;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+renderLessons(LESSONS);
+
+// Telegram WebApp
+window.Telegram.WebApp.ready();
+window.Telegram.WebApp.expand();
+
+// Handle MainButton
+window.Telegram.WebApp.MainButton.setText('📚 Open Courses in Bot');
+window.Telegram.WebApp.MainButton.onClick(() => {
+  window.Telegram.WebApp.sendData('courses');
+});
+window.Telegram.WebApp.MainButton.show();
+</script>
+</body>
+</html>
