@@ -65,6 +65,16 @@ from handlers.callbacks import (
     set_language_cb, save_language_cb,
     notifications_cb, save_notif_cb, clear_memory_cb,
 )
+from handlers.group_tools import (
+    group_tools_menu_handler, advanced_welcome_handler,
+    show_rules, set_rules_start, receive_rules,
+    attendance_start, attendance_callback, attendance_report,
+    task_new_start, task_receive_name, task_receive_desc,
+    task_list, task_done,
+    auto_reply_start, auto_reply_trigger, auto_reply_save, auto_reply_check,
+    WAITING_RULES, WAITING_TASK_NAME, WAITING_TASK_DESC,
+    WAITING_AUTO_TRIGGER, WAITING_AUTO_REPLY,
+)
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -242,6 +252,37 @@ def main():
     # ── Conversations ────────────────────────────────────────────────────────
     for conv in build_conversations():
         app.add_handler(conv)
+
+    # ── Group Tools Conversations ──────────────────────────────────────────
+    rules_conv = ConversationHandler(
+        entry_points=[CallbackQueryHandler(set_rules_start, pattern="^grp_rules$")],
+        states={WAITING_RULES: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_rules)]},
+        fallbacks=[CommandHandler("cancel", lambda u, c: ConversationHandler.END)],
+        per_message=False, allow_reentry=True,
+    )
+    app.add_handler(rules_conv)
+
+    task_conv = ConversationHandler(
+        entry_points=[CommandHandler("task_new", task_new_start)],
+        states={
+            WAITING_TASK_NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, task_receive_name)],
+            WAITING_TASK_DESC: [MessageHandler(filters.TEXT & ~filters.COMMAND, task_receive_desc)],
+        },
+        fallbacks=[CommandHandler("cancel", lambda u, c: ConversationHandler.END)],
+        per_message=False, allow_reentry=True,
+    )
+    app.add_handler(task_conv)
+
+    auto_conv = ConversationHandler(
+        entry_points=[CallbackQueryHandler(auto_reply_start, pattern="^grp_autoreply$")],
+        states={
+            WAITING_AUTO_TRIGGER: [MessageHandler(filters.TEXT & ~filters.COMMAND, auto_reply_trigger)],
+            WAITING_AUTO_REPLY: [MessageHandler(filters.TEXT & ~filters.COMMAND, auto_reply_save)],
+        },
+        fallbacks=[CommandHandler("cancel", lambda u, c: ConversationHandler.END)],
+        per_message=False, allow_reentry=True,
+    )
+    app.add_handler(auto_conv)
 
     # ── Commands ─────────────────────────────────────────────────────────────
     cmds = [
