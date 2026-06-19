@@ -304,6 +304,12 @@ def main():
         ("gpt_image",  gpt_image_command),
         ("flux",       flux_command),
         ("veo",        veo_command),
+        # Group Tools
+        ("rules",      show_rules),
+        ("xaadir",     attendance_start),
+        ("attendance", attendance_report),
+        ("task_list",  task_list),
+        ("task_done",  task_done),
     ]
     for cmd, fn in cmds:
         app.add_handler(CommandHandler(cmd, fn))
@@ -372,7 +378,13 @@ def main():
 
     # New chat members
     app.add_handler(MessageHandler(
-        filters.StatusUpdate.NEW_CHAT_MEMBERS, new_member_handler
+        filters.StatusUpdate.NEW_CHAT_MEMBERS, advanced_welcome_handler
+    ))
+
+    # Group auto-reply checker
+    app.add_handler(MessageHandler(
+        filters.TEXT & filters.ChatType.GROUP | filters.ChatType.SUPERGROUP,
+        auto_reply_check
     ))
 
     # ── Start ────────────────────────────────────────────────────────────────
