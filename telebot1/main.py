@@ -394,7 +394,7 @@ def main():
     print("\n" + "═" * 50)
     print("  🤖  Mfaratoon AI Bot — ONLINE ✅")
     print("  📲  Telegram: /start")
-    print("  📚  Courses: /courses (40 lessons)")
+    print("  📚  Courses: /courses (50 lessons)")
     print("  🛑  Stop: Ctrl+C")
     print("═" * 50 + "\n")
 

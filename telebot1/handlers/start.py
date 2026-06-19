@@ -20,7 +20,7 @@ WELCOME_TEXT = """\
 
 🤖 *AI Assistant* (Somali / Arabic / English)
 
-📚 *40+ Koorso FREE* — Raadi, daalaco, baro!
+📚 *50+ Koorso FREE* — Raadi, daalaco, baro!
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⏳ Trial: `{trial_days}` days remaining

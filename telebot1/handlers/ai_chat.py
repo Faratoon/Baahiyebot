@@ -16,18 +16,34 @@ AI_CHATTING = 1
 
 
 async def ai_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """AI Chat menu — fun welcome with quiz."""
     query = update.callback_query
+
+    # Quiz question
+    quiz_text = (
+        "━━━━━━━━━━━━━━━━━━━━━━\n"
+        "  🤖 𝐀𝐈 𝐂𝐇𝐀𝐓 — 𝐌𝐀𝐀𝐍𝐃𝐈𝐑𝐌𝐀𝐀?\n"
+        "━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        "Kusoo dhawow *Mfaratoon AI*! 🎉\n\n"
+        "**💡 Su'aal: Waa maxay chatbot-ka ugu horreeyay?**\n\n"
+        "1️⃣ 🤖 ChatGPT\n"
+        "2️⃣ 💬 ELIZA (1966)\n"
+        "3️⃣ 🧠 Siri\n"
+        "4️⃣ 🔍 Google Assistant\n\n"
+        "🤔 Jawaabta hoos ku qor — haddii sax noqoto bot-ku wuu kuu sheegi doonaa!\n\n"
+        "👇 *Xulo model-ka AI-ga:*"
+    )
+
     if query:
         await query.answer()
         await query.edit_message_text(
-            "🤖 *AI Assistant*\n\n"
-            "Xulo model-ka aad rabto:",
+            quiz_text,
             parse_mode=ParseMode.MARKDOWN,
             reply_markup=ai_models_menu()
         )
     else:
         await update.message.reply_text(
-            "🤖 *AI Assistant*\n\nXulo model-ka aad rabto:",
+            quiz_text,
             parse_mode=ParseMode.MARKDOWN,
             reply_markup=ai_models_menu()
         )
@@ -70,6 +86,17 @@ async def ai_chat_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user    = update.effective_user
     uid     = user.id
     text    = update.message.text or ""
+
+    # Check for quiz answer
+    quiz_answer = text.strip().lower()
+    if quiz_answer in ["2", "eliza", "eliza (1966)"]:
+        await update.message.reply_text(
+            "🎉 *✅ SAX!* ELIZA (1966) waa chatbot-ka ugu horreeyay!\n\n"
+            "Waxaa la sameeyay MIT-ka, 60 sanno ka hor.\n"
+            "Hadda waxaad isticmaali kartaa AI-ga hoose 👇",
+            parse_mode=ParseMode.MARKDOWN
+        )
+        context.user_data["quiz_passed"] = True
 
     # Check limits
     if not await check_limits(update, context):
