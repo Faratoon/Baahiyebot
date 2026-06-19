@@ -1,10 +1,17 @@
 """
 main.py  –  MERGED: Mfaratoon AI Bot + Somali AI Academy
-All-in-one: Channel/Group manager + AI Chat + 40 Courses
+All-in-one: Channel/Group manager + AI Chat + 70 Courses
 """
 import logging
+import sys
+import os
 import warnings
 warnings.filterwarnings("ignore")
+
+# Ensure this directory is in sys.path so handlers/ works
+_this_dir = os.path.dirname(os.path.abspath(__file__))
+if _this_dir not in sys.path:
+    sys.path.insert(0, _this_dir)
 
 from telegram import Update
 from telegram.ext import (
